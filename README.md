@@ -12,3 +12,5 @@ You can install `pymavlink` using pip:
 
 ```bash
 pip install pymavlink
+
+# 1. Connecting to the Drone
