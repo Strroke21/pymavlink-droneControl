@@ -81,6 +81,6 @@ send_position_setpoint(vehicle, 5, 5, 5)
 from droneControl import condition_yaw
 
 # Example: Setting yaw to 90 degrees
-condition_yaw(vehicle, 90)
+condition_yaw(vehicle, 90,1)
 ```
 
