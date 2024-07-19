@@ -14,3 +14,9 @@ You can install `pymavlink` using pip:
 pip install pymavlink
 ```
 # 1. Connecting to the Drone
+```bash
+from droneControl import connect
+
+connection_string = 'udp:127.0.0.1:14550'
+vehicle = connect(connection_string)
+```
