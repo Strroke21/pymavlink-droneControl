@@ -177,3 +177,27 @@ def get_battery_status(vehicle):
         'current': battery_current,
         'remaining %': battery_remaining
     }
+
+def get_system_status(vehicle):
+    # Wait for a 'HEARTBEAT' message
+    message = vehicle.recv_match(type='HEARTBEAT', blocking=True, timeout=10)
+
+    if message is None:
+        raise TimeoutError("Did not receive HEARTBEAT message in time")
+
+    # Interpret the system status
+    system_status = message.system_status
+
+    status_mapping = {
+        mavutil.mavlink.MAV_STATE_UNINIT: 'Uninitialized',
+        mavutil.mavlink.MAV_STATE_BOOT: 'Booting',
+        mavutil.mavlink.MAV_STATE_CALIBRATING: 'Calibrating',
+        mavutil.mavlink.MAV_STATE_STANDBY: 'Standby',
+        mavutil.mavlink.MAV_STATE_ACTIVE: 'Active',
+        mavutil.mavlink.MAV_STATE_CRITICAL: 'Critical',
+        mavutil.mavlink.MAV_STATE_EMERGENCY: 'Emergency',
+        mavutil.mavlink.MAV_STATE_POWEROFF: 'Powered Off',
+        mavutil.mavlink.MAV_STATE_FLIGHT_TERMINATION: 'Flight Termination',
+    }
+
+    return status_mapping.get(system_status, 'Unknown')
