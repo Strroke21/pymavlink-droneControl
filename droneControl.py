@@ -118,7 +118,7 @@ def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
 
 
 ############## desired yaw function ##############  
-def condition_yaw(vehicle, yaw, relative=False):
+def condition_yaw(vehicle, yaw, relative):
     if relative:
         is_relative = 1 #yaw relative to direction of travel
     else:
