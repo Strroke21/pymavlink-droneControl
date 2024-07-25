@@ -124,7 +124,7 @@ def condition_yaw(vehicle, yaw, relative=False):
     else:
         is_relative = 0 #yaw is an absolute angle
     # create the CONDITION_YAW command using command_long_encode()
-    vehicle.mav.command_long_encode(
+    msg=vehicle.mav.command_long_encode(
         0, 0,    # target system, target component
         mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
         0, #confirmation
@@ -133,5 +133,21 @@ def condition_yaw(vehicle, yaw, relative=False):
         0,          # param 3, direction -1 ccw, 1 cw, 0 for short turn
         is_relative, # param 4, relative offset 1, absolute angle 0
         0, 0, 0)    # param 5 ~ 7 not used
+    
+    vehicle.mav.send(msg)
+    
   
 
+def get_heading(vehicle):
+
+    vehicle.mav.command_long_send(vehicle.target_system,
+    vehicle.target_component,
+    mavutil.mavlink.MAV_CMD_REQUEST_MESSAGE,0,74,0,0,0,0,0,0)
+    ack_msg = vehicle.recv_match(type='COMMAND_ACK', blocking=True, timeout=3)
+    #### COMMAND_ACK has a message id of 512.
+
+    msg = vehicle.recv_match(type='VFR_HUD',blocking=True)
+
+    heading = msg.heading
+        #print(heading)
+    return heading
