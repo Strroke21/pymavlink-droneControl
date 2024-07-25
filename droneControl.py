@@ -151,3 +151,29 @@ def get_heading(vehicle):
     heading = msg.heading
         #print(heading)
     return heading
+
+
+def get_battery_status(vehicle):
+    # Request the SYS_STATUS message
+    vehicle.mav.request_data_stream_send(
+        vehicle.target_system,
+        vehicle.target_component,
+        mavutil.mavlink.MAV_DATA_STREAM_ALL,
+        1, 1  # Requesting one message per second
+    )
+
+    # Wait for a 'SYS_STATUS' message
+    message = vehicle.recv_match(type='SYS_STATUS', blocking=True, timeout=10)
+
+    if message is None:
+        raise TimeoutError("Did not receive SYS_STATUS message in time")
+
+    battery_voltage = message.voltage_battery / 1000.0  # Convert mV to V
+    battery_current = message.current_battery / 100.0  # Convert cA to A
+    battery_remaining = message.battery_remaining  # Remaining battery percentage
+
+    return {
+        'voltage': battery_voltage,
+        'current': battery_current,
+        'remaining %': battery_remaining
+    }
