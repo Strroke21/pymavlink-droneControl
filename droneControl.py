@@ -202,8 +202,3 @@ def get_system_status(vehicle):
 
     return status_mapping.get(system_status, 'Unknown')
 
-def send_msg_to_gcs(text_to_be_sent):
-    # MAV_SEVERITY: 0=EMERGENCY 1=ALERT 2=CRITICAL 3=ERROR, 4=WARNING, 5=NOTICE, 6=INFO, 7=DEBUG, 8=ENUM_END
-    text_msg = 'INFO: ' + text_to_be_sent
-    conn.mav.statustext_send(mavutil.mavlink.MAV_SEVERITY_INFO, text_msg.encode())
-    progress("INFO: %s" % text_to_be_sent)
