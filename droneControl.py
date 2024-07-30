@@ -39,12 +39,52 @@ def VehicleMode(vehicle,mode):
         mode_id = 9
 
     else:
-        mode_id = 0
+        mode_id = 12
     ##### changing to guided mode #####
     #mode_id = 0:STABILIZE, 1:ACRO, 2: ALT_HOLD, 3:AUTO, 4:GUIDED, 5:LOITER, 6:RTL, 7:CIRCLE, 9:LAND
     vehicle.mav.set_mode_send(
         vehicle.target_system,mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,mode_id)
     
+
+def flightMode(vehicle):
+    
+    # Wait for a 'HEARTBEAT' message
+    message = vehicle.recv_match(type='HEARTBEAT', blocking=True, timeout=10)
+
+    if message is None:
+        raise TimeoutError("Did not receive HEARTBEAT message in time")
+
+    # Extract the base_mode and custom_mode fields
+    #$base_mode = message.base_mode
+    custom_mode = message.custom_mode
+    if custom_mode==0:
+        mode="STABILIZE"
+
+    if custom_mode==1:
+        mode="ACRO"
+
+    if custom_mode==2:
+        mode="ALT_HOLD"
+
+    if custom_mode==3:
+        mode="AUTO"
+
+    if custom_mode==4:
+        mode="GUIDED"
+
+    if custom_mode==5:
+        mode="LOITER"
+
+    if custom_mode==6:
+        mode="RTL"
+
+    if custom_mode==7:
+        mode="CIRCLE"
+
+    if custom_mode==9:
+        mode="LAND"
+
+    return mode
 
 def arm(vehicle):
     #arm the drone
