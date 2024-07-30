@@ -8,8 +8,38 @@ def connect(connection_string):
 
     return vehicle
 
-def VehicleMode(mode_id,vehicle):
+def VehicleMode(vehicle,mode):
 
+    modes = ["STABILIZE", "ACRO", "ALT_HOLD", "AUTO", "GUIDED", "LOITER", "RTL", "CIRCLE", "LAND"]
+    if mode == modes[0]:
+        mode_id = 0
+
+    elif mode == modes[1]:
+        mode_id = 1
+
+    elif mode == modes[2]:
+        mode_id = 2
+
+    elif mode == modes[3]:
+        mode_id = 3
+    
+    elif mode == modes[4]:
+        mode_id = 4
+
+    elif mode == modes[5]:
+        mode_id = 5
+
+    elif mode == modes[6]:
+        mode_id = 6
+
+    elif mode == modes[7]:
+        mode_id = 7
+
+    elif mode == modes[8]:
+        mode_id = 9
+
+    else:
+        mode_id = 0
     ##### changing to guided mode #####
     #mode_id = 0:STABILIZE, 1:ACRO, 2: ALT_HOLD, 3:AUTO, 4:GUIDED, 5:LOITER, 6:RTL, 7:CIRCLE, 9:LAND
     vehicle.mav.set_mode_send(
@@ -201,3 +231,4 @@ def get_system_status(vehicle):
     }
 
     return status_mapping.get(system_status, 'Unknown')
+
