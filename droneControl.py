@@ -37,6 +37,9 @@ def VehicleMode(vehicle,mode):
 
     elif mode == modes[8]:
         mode_id = 9
+
+    else:
+        print("Invalid Mode")
     ##### changing to guided mode #####
     #mode_id = 0:STABILIZE, 1:ACRO, 2: ALT_HOLD, 3:AUTO, 4:GUIDED, 5:LOITER, 6:RTL, 7:CIRCLE, 9:LAND
     vehicle.mav.set_mode_send(
