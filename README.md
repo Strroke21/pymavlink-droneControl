@@ -25,7 +25,7 @@ vehicle = connect(connection_string)
 from droneControl import VehicleMode
 
 # Example: Changing to GUIDED mode
-VehicleMode(vehicle,"LOITER")
+VehicleMode(vehicle,"GUIDED")
 #mode:  ["STABILIZE", "ACRO", "ALT_HOLD", "AUTO", "GUIDED", "LOITER", "RTL", "CIRCLE", "LAND"]
 ```
 # 3. Arming the Drone
