@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from pymavlink import mavutil
+from math import radians, cos, sin, sqrt, atan2
+
 
 def connect(connection_string):
 
@@ -272,3 +274,39 @@ def get_system_status(vehicle):
 
     return status_mapping.get(system_status, 'Unknown')
 
+
+def home_location(vehicle):
+
+    vehicle.mav.command_long_send(vehicle.target_system,vehicle.target_component,mavutil.mavlink.MAV_CMD_GET_HOME_POSITION,0,0,0,0,0,0,0,0)
+    msg=vehicle.recv_match(type='HOME_POSITION',blocking=True)
+    if msg:
+        return [msg.latitude * 1e-7, msg.longitude * 1e-7,msg.altitude * 1e-3]
+    
+    #1:lat 2:lon 3:alt
+
+
+def distance_to_home(vehicle):
+
+    vehicle.mav.command_long_send(vehicle.target_system,vehicle.target_component,mavutil.mavlink.MAV_CMD_GET_HOME_POSITION,0,0,0,0,0,0,0,0)
+    msg1=vehicle.recv_match(type='HOME_POSITION',blocking=True)
+    
+    home_lat=msg1.latitude * 1e-7
+    home_lon=msg1.longitude * 1e-7
+    #home_alt=msg1.altitude * 1e-3
+
+    msg2 = get_global_position(vehicle)
+    
+    current_lat = msg2[0] # lat
+    current_lon = msg2[1] # lon
+    #current_alt = msg2[2] # alt
+    
+    R = 6371000  # Earth radius in meters
+    dlat = radians(current_lat - home_lat)
+    dlon = radians(current_lon - home_lon)
+    a = sin(dlat / 2)**2 + cos(radians(home_lat)) * cos(radians(current_lat)) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    distance = R * c
+    return distance
+
+
+    
