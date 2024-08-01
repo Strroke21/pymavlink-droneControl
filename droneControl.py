@@ -306,7 +306,7 @@ def distance_to_home(vehicle):
     a = sin(dlat / 2)**2 + cos(radians(home_lat)) * cos(radians(current_lat)) * sin(dlon / 2)**2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     distance = R * c
-    return distance
+    return distance #in meters
 
 
     
