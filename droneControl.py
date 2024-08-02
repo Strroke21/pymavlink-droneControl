@@ -287,11 +287,10 @@ def home_location(vehicle):
 
 def distance_to_home(vehicle):
 
-    vehicle.mav.command_long_send(vehicle.target_system,vehicle.target_component,mavutil.mavlink.MAV_CMD_GET_HOME_POSITION,0,0,0,0,0,0,0,0)
-    msg1=vehicle.recv_match(type='HOME_POSITION',blocking=True)
+    msg1=home_location(vehicle)
     
-    home_lat=msg1.latitude * 1e-7
-    home_lon=msg1.longitude * 1e-7
+    home_lat=msg1[0]
+    home_lon=msg1[1]
     #home_alt=msg1.altitude * 1e-3
 
     msg2 = get_global_position(vehicle)
@@ -307,6 +306,9 @@ def distance_to_home(vehicle):
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     distance = R * c
     return distance #in meters
+
+
+
 
 
     
