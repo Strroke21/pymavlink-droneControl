@@ -119,7 +119,7 @@ def send_velocity_setpoint(vehicle, vx, vy, vz):
         vehicle.target_system,       # target_system
         vehicle.target_component,    # target_component
         mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,  # frame
-        0b0000111111111000,        # type_mask (only vx, vy, vz, yaw_rate)
+        0b0000111111000111,        # type_mask (only vx, vy, vz, yaw_rate)
         0, 0, 0,                    # position (not used)
         vx, vy, vz,                 # velocity in m/s
         0, 0, 0,                    # acceleration (not used)
@@ -327,7 +327,7 @@ def scaled_imu_data(vehicle):
 
         return {'x_accel':accel_x, 'y_accel':accel_y, 'z_accel':accel_z, 'x_gyro':gyro_x, 'y_gyro':gyro_y, 'z_gyro':gyro_z, 'x_mag':mag_x,'y_mag':mag_y, 'z_mag':mag_z}
     
-    #accel_unit: mG gyro_unit: mrad/s mag_unit: mgauss
+    #accel_unit: mG gyro_unit: mrad/s mag_unit:mgauss
     
 
 
