@@ -181,7 +181,7 @@ def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
         vehicle.target_system,       # target_system
         vehicle.target_component,    # target_component
         mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,  # frame
-        0b0000111111000111,        # type_mask (only vx, vy, vz, yaw_rate)
+        0b110111111000,        # type_mask (only for postion)
         pos_x, pos_y, pos_z,   # position 
         0, 0, 0,                 # velocity in m/s (not used)
         0, 0, 0,                    # acceleration (not used)
