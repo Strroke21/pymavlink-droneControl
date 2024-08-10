@@ -150,7 +150,7 @@ def goto_waypoint(vehicle,latitude, longitude, altitude):
         type_mask=0b0000111111111000,        # Bitmask to indicate which dimensions should be ignored (0b0000111111111000 means all ignored except position)
         lat_int=int(latitude * 1e7),       # Latitude in degrees * 1e7 (to convert to integer)
         lon_int=int(longitude * 1e7),      # Longitude in degrees * 1e7 (to convert to integer)
-        alt=altitude * 1000,           # Altitude in meters (converted to millimeters)
+        alt=altitude,
         vx=0,                         # X velocity in m/s (not used)
         vy=0,                         # Y velocity in m/s (not used)
         vz=0,                         # Z velocity in m/s (not used)
