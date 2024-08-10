@@ -60,7 +60,7 @@ print(f"Local Position: {position}")
 from droneControl import goto_waypoint
 
 # Example: Flying to a waypoint at latitude 37.7749242, longitude -122.4194152, altitude 20 meters
-goto_waypoint(vehicle, 37.7749, -122.4194, 20)
+goto_waypoint(vehicle, 37.7749242, -122.4194152, 20)
 ```
 # 8. Getting global position
 ```
