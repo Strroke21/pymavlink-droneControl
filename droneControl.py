@@ -282,7 +282,7 @@ def home_location(vehicle):
     if msg:
         return [msg.latitude * 1e-7, msg.longitude * 1e-7,msg.altitude * 1e-3]
     
-    #1:lat 2:lon 3:alt
+    #0:lat 1:lon 2:alt
 
 
 def distance_to_home(vehicle):
