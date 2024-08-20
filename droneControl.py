@@ -346,11 +346,9 @@ def arm_status(vehicle):
     if heartbeat:
         armed = heartbeat.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
         if armed:
-            status = 'armed'
+            return True
         else:
-            status = 'disarmed'
-
-        return status
+            return False
     
 def set_parameter(vehicle, param_id, param_value, param_type=mavutil.mavlink.MAV_PARAM_TYPE_REAL32):
     # Send PARAM_SET message to change the parameter
@@ -361,6 +359,18 @@ def set_parameter(vehicle, param_id, param_value, param_type=mavutil.mavlink.MAV
         param_value,                  # New parameter value
         param_type                    # MAVLink type (e.g., float, int)
     )
+
+def get_rangefinder_data(vehicle):
+    # Wait for a DISTANCE_SENSOR or RANGEFINDER message
+    msg = vehicle.recv_match(type=['DISTANCE_SENSOR', 'RANGEFINDER'], blocking=True)
+    if msg:
+        if msg.get_type() == 'DISTANCE_SENSOR':
+            distance = msg.current_distance/100  # in meters
+        elif msg.get_type() == 'RANGEFINDER':
+            distance = msg.distance  # in meters
+        return distance
+    else:
+        return None
 
 
     
