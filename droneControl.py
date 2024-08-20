@@ -329,6 +329,39 @@ def scaled_imu_data(vehicle):
     
     #accel_unit: mG gyro_unit: mrad/s mag_unit:mgauss
 
+def send_land_message(vehicle,x,y):
+    msg = vehicle.mav.landing_target_encode(
+        0,
+        0,
+        mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,
+        x,
+        y,
+        0,
+        0,
+        0,)
+    vehicle.mav.send(msg)
+
+def arm_status(vehicle):
+    heartbeat = vehicle.recv_match(type='HEARTBEAT', blocking=True)
+    if heartbeat:
+        armed = heartbeat.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
+        if armed:
+            status = 'armed'
+        else:
+            status = 'disarmed'
+
+        return status
+    
+def set_parameter(vehicle, param_id, param_value, param_type=mavutil.mavlink.MAV_PARAM_TYPE_REAL32):
+    # Send PARAM_SET message to change the parameter
+    vehicle.mav.param_set_send(
+        vehicle.target_system,     # Target system ID (usually 1)
+        vehicle.target_component,  # Target component ID (usually 1)
+        param_id.encode('utf-8'),     # Parameter ID as bytes
+        param_value,                  # New parameter value
+        param_type                    # MAVLink type (e.g., float, int)
+    )
+
 
     
 
