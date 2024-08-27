@@ -4,9 +4,9 @@ from pymavlink import mavutil
 from math import radians, cos, sin, sqrt, atan2
 
 
-def connect(connection_string):
+def connect(connection_string,baud):
 
-    vehicle =  mavutil.mavlink_connection(connection_string)
+    vehicle =  mavutil.mavlink_connection(connection_string,baud)
 
     return vehicle
 
