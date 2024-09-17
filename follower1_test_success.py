@@ -158,7 +158,7 @@ def relative_pos(lat, lon, distance, heading, follower_heading):
     return new_lat, new_lon
 
 
-def formation_row():
+def formation_row(angle,distance):
     counter = 0
     while True:
         ######## leader ######
@@ -171,8 +171,8 @@ def formation_row():
             lead_yaw = (current_pos['hdg'])/100
             print(f"Leader Heading: {lead_yaw} deg.")
             ######### follower1 ######
-            yaw1 = 90  #on the right
-            dist1 = 20 #change this distance to add new follower
+            yaw1 = angle #on the right
+            dist1 = distance#change this distance to add new follower
             lat1, lon1 = relative_pos(lat_lead, lon_lead, dist1, lead_yaw, yaw1)
             print(lat1, lon1)
             ##### send msg to follower1 drone #############
