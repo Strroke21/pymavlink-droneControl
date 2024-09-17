@@ -159,25 +159,34 @@ def relative_pos(lat, lon, distance, heading, follower_heading):
 
 
 def formation_row():
-    ######## leader ######
-    data = mavlink_data_queue.get()
-    if data[0] == 3:
-        current_pos = data[1]
-        if current_pos:
-            lat_lead = current_pos['lat']/1e7
-            lon_lead = current_pos['lon']/1e7
-            lead_yaw = (current_pos['hdg'])/100
-            print(lead_yaw)
-            ######### follower1 ######
-            yaw1 = 90  #on the right
-            dist1 = 20 #change this distance to add new follower
-            lat1, lon1 = relative_pos(lat_lead, lon_lead, dist1, lead_yaw, yaw1)
-            print(lat1, lon1)
-            ##### send msg to follower1 drone #############
+    while True:
+        ######## leader ######
+        data = mavlink_data_queue.get()
+        if data[0] == 3:
+            current_pos = data[1]
+            if current_pos:
+                lat_lead = current_pos['lat']/1e7
+                lon_lead = current_pos['lon']/1e7
+                lead_yaw = (current_pos['hdg'])/100
+                print(lead_yaw)
+                ######### follower1 ######
+                yaw1 = 90  #on the right
+                dist1 = 20 #change this distance to add new follower
+                lat1, lon1 = relative_pos(lat_lead, lon_lead, dist1, lead_yaw, yaw1)
+                print(lat1, lon1)
+                ##### send msg to follower1 drone #############
 
-            goto_waypoint(follower1,lat1,lon1,10) #altitude 1
-            print("formation command sent.")
-            time.sleep(0.15)
+                goto_waypoint(follower1,lat1,lon1,10) #altitude 1
+                print("formation command sent.")
+                time.sleep(0.15)
+
+                dist_to_target = distance_between(follower1,lat1,lon1)
+                print(f"distance to formation: {round(dist_to_target,2)} m.")
+                time.sleep(1)
+                break
+                    
+        else:
+            print("no data retrieved from the leader.")
 
 
 def distance_to_leader(vehicle,leader_lat,leader_lon):
@@ -248,7 +257,7 @@ def angle_difference_with_heading(lat1, lon1, heading, lat2, lon2): # angle diff
 
     return angle_diff
 
-def distance_to_between(vehicle,leader_lat,leader_lon):
+def distance_between(vehicle,leader_lat,leader_lon):
     
     msg2 = get_global_position(vehicle)
     
@@ -301,68 +310,73 @@ drone_takeoff(follower1,10)
 print("taking off follower1")
 
 while True:
-    altitude = -get_local_position(follower1)[2]
+    altitude = abs(get_local_position(follower1)[2])
     print(f"Altitude: {altitude} m.")
     if altitude>9:
         print("Target altitude reached.")
         break
 
-counter = 0
 relativePosition = 'right' #follower1 in the straight right of the leader
 
 ####### main ######
+formation_row()
 
 while True:
     
-    counter+=1
-    if counter==0:
-        formation_row()
-
     pos = mavlink_data_queue.get()
     if pos[0]==3:
         #fetch leader velocity in all direction in m/s
-        lead_vx = pos[1]['vx']/100
-        lead_vy = pos[1]['vy']/100
-        lead_vz = pos[1]['vz']/100
-        leader_lat = pos[1]['lat']*1e-7
-        leader_lon = pos[1]['lon']*1e-7
-        leader_yaw = pos[1]['hdg']/100
+        lead_vx = pos[1]['vx']/100 #in m/s
+        lead_vy = pos[1]['vy']/100 #in m/s
+        lead_vz = pos[1]['vz']/100 #in m/s
+        leader_lat = pos[1]['lat']*1e-7 #in deg
+        leader_lon = pos[1]['lon']*1e-7 #in deg
+        leader_yaw = pos[1]['hdg']/100 #in deg
         yaw1 = 90 #yaw 90 for right
 
-        follower_offset = 20 #offset in right #change this distance to add new follower
+        follower_offset_y = 20 #offset in right #change this distance to add new follower
+        follower_offset_x = 5
+
         send_velocity_setpoint(follower1,lead_vx,lead_vy,0) #sending only vx and vy
         print(f"leader vx: {lead_vx} m/s leader vy: {lead_vy} m/s leader vz: {lead_vz} m/s")
-        time.sleep(0.15)
-        lat1, lon1 = relative_pos(leader_lat,leader_lon, follower_offset, leader_yaw, yaw1) #coordinates in 20m right direction
-        #print(f"Leader Coordinates: Latitude: {leader_lat} Longitude: {leader_lon}")
-        diff_dist_x = abs(distance_to_between(follower1,lat1,lon1)) #distance difference between follower target location and current location
-        distance = abs(( (distance_to_between(follower1,leader_lat,leader_lon))**2 - (diff_dist_x)**2 )**(1/2))  #horizontal distance to leader
-        diff_dist_y = follower_offset - distance
+        #time.sleep(0.15)
 
-        if abs(diff_dist_y)>1: #formation correction if difference is greater than 1m. 
+        '''lat1, lon1 = relative_pos(leader_lat,leader_lon, follower_offset_y, leader_yaw, yaw1) #coordinates in 20m right direction
+        distance_v = abs(distance_between(follower1,lat1,lon1)) #vertical distance to leader
+        distance_h = abs(( (distance_between(follower1,leader_lat,leader_lon))**2 - (distance_v)**2 )**(1/2))  #horizontal distance to leader
+        diff_dist_y = follower_offset_y - distance_h  
+        diff_dist_x = distance_v - follower_offset_x
+        print(f"x-difference: {diff_dist_x} m. y-difference: {diff_dist_y} m.")
+
+        if abs(diff_dist_y)>2: #formation correction if difference is greater than 1m. 
             send_velocity_setpoint(follower1,0,diff_dist_y,0) #formation velocity-y command
             print("velocity vy command sent for formation.")
-            time.sleep(0.5)
+            time.sleep(0.2)
+
+        if abs(diff_dist_x)>2:
+            send_velocity_setpoint(follower1,diff_dist_x,0,0)
+            print("velocity vx command sent for formation.")
+            time.sleep(0.2)
 
         #command to correct pos_x using velocity_x
-        if abs(diff_dist_x)>1: #formation correction if difference is greater than 1m. 
-            pos_f = get_global_position(follower1)
-            lat_f = pos_f[0]
-            lon_f = pos_f[1]
-            ang = angle_difference_with_heading(leader_lat,leader_lon,leader_yaw,lat_f,lon_f)
+        # if abs(diff_dist_x)>=2: #formation correction if difference is greater than 1m. 
+        #     pos_f = get_global_position(follower1)
+        #     lat_f = pos_f[0]
+        #     lon_f = pos_f[1]
+        #     ang = angle_difference_with_heading(leader_lat,leader_lon,leader_yaw,lat_f,lon_f)
 
-            if ang<90: #if angle is less than 90deg then drone will go backward
-                send_velocity_setpoint(follower1,-diff_dist_x,0,0)
-                print("velocity vx command sent for formation.")
-                time.sleep(0.5)
+        #     if ang<90: #if angle is less than 90deg then drone will go backward
+        #         send_velocity_setpoint(follower1,-diff_dist_x,0,0)
+        #         print("velocity vx command sent for formation.")
+        #         time.sleep(0.2)
 
-            if ang>90: #if angle is more than 90deg then drone will go forward
-                send_velocity_setpoint(follower1,diff_dist_x,0,0)
-                print("velocity vx command sent for formation.")
-                time.sleep(0.5)
+        #     if ang>90: #if angle is more than 90deg then drone will go forward
+        #         send_velocity_setpoint(follower1,diff_dist_x,0,0)
+        #         print("velocity vx command sent for formation.")
+        #         time.sleep(0.2)
 
             
-        print(f"Distance to Leader: {round(distance,2)} m.")
+        print(f"Distance to Leader: horizontal: {round(distance_h,2)} m. vertical: {round(distance_v,2)}")'''
 
     else:
         print("no data received from leader")
