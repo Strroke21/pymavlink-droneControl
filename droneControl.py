@@ -118,7 +118,7 @@ def send_velocity_setpoint(vehicle, vx, vy, vz):
         0,                          # time_boot_ms (not used)
         vehicle.target_system,       # target_system
         vehicle.target_component,    # target_component
-        mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,  # frame
+        mavutil.mavlink.MAV_FRAME_LOCAL_NED,  # frame
         0b0000111111000111,        # type_mask (only vx, vy, vz, yaw_rate)
         0, 0, 0,                    # position (not used)
         vx, vy, vz,                 # velocity in m/s
@@ -180,7 +180,7 @@ def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
         0,                          # time_boot_ms (not used)
         vehicle.target_system,       # target_system
         vehicle.target_component,    # target_component
-        mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,  # frame
+        mavutil.mavlink.MAV_FRAME_LOCAL_NED,  # frame
         0b110111111000,        # type_mask (only for postion)
         pos_x, pos_y, pos_z,   # position 
         0, 0, 0,                 # velocity in m/s (not used)
