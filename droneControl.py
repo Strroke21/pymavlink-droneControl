@@ -171,7 +171,10 @@ def get_global_position(vehicle):
     lat = msg.lat/1e7 # lat
     lon = msg.lon/1e7 # lon
     alt = msg.alt/1000  # alt
-    return [lat,lon,alt]
+    vx = msg.vx
+    vy= msg.vy
+    vz = msg.vz
+    return [lat,lon,alt,vx,vy,vz]
 
 def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
 
