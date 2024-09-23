@@ -149,7 +149,7 @@ def get_global_position(vehicle):
     vx = msg.vx/100 #in m/s
     vy= msg.vy/100 #in m/s
     vz = msg.vz/100 #in m/s
-    local_alt = msg.relative_alt
+    local_alt = msg.relative_alt/100
     return [lat,lon,alt,vx,vy,vz,local_alt]
 
 def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
