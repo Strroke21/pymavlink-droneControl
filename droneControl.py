@@ -13,37 +13,12 @@ def connect(connection_string,baud):
 def VehicleMode(vehicle,mode):
 
     modes = ["STABILIZE", "ACRO", "ALT_HOLD", "AUTO", "GUIDED", "LOITER", "RTL", "CIRCLE", "LAND"]
-    if mode == modes[0]:
-        mode_id = 0
-
-    elif mode == modes[1]:
-        mode_id = 1
-
-    elif mode == modes[2]:
-        mode_id = 2
-
-    elif mode == modes[3]:
-        mode_id = 3
-    
-    elif mode == modes[4]:
-        mode_id = 4
-
-    elif mode == modes[5]:
-        mode_id = 5
-
-    elif mode == modes[6]:
-        mode_id = 6
-
-    elif mode == modes[7]:
-        mode_id = 7
-
-    elif mode == modes[8]:
-        mode_id = 9
-
+    if mode in modes:
+        mode_id = modes.index(mode)
     else:
         mode_id = 12
     ##### changing to guided mode #####
-    #mode_id = 0:STABILIZE, 1:ACRO, 2: ALT_HOLD, 3:AUTO, 4:GUIDED, 5:LOITER, 6:RTL, 7:CIRCLE, 9:LAND
+    #mode_id = 0:STABILIZE, 1:ACRO, 2: ALT_HOLD, 3:AUTO, 4:GUIDED, 5:LOITER, 6:RTL, 7:CIRCLE, 9:LAND 12:None
     vehicle.mav.set_mode_send(
         vehicle.target_system,mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,mode_id)
     
@@ -171,10 +146,11 @@ def get_global_position(vehicle):
     lat = msg.lat/1e7 # lat
     lon = msg.lon/1e7 # lon
     alt = msg.alt/1000  # alt
-    vx = msg.vx
-    vy= msg.vy
-    vz = msg.vz
-    return [lat,lon,alt,vx,vy,vz]
+    vx = msg.vx/100 #in m/s
+    vy= msg.vy/100 #in m/s
+    vz = msg.vz/100 #in m/s
+    local_alt = msg.relative_alt
+    return [lat,lon,alt,vx,vy,vz,local_alt]
 
 def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
 
