@@ -26,40 +26,7 @@ def VehicleMode(vehicle,mode):
 def flightMode(vehicle):
     
     # Wait for a 'HEARTBEAT' message
-    message = vehicle.recv_match(type='HEARTBEAT', blocking=True, timeout=10)
-
-    if message is None:
-        raise TimeoutError("Did not receive HEARTBEAT message in time")
-
-    # Extract the base_mode and custom_mode fields
-    #$base_mode = message.base_mode
-    custom_mode = message.custom_mode
-    if custom_mode==0:
-        mode="STABILIZE"
-
-    if custom_mode==1:
-        mode="ACRO"
-
-    if custom_mode==2:
-        mode="ALT_HOLD"
-
-    if custom_mode==3:
-        mode="AUTO"
-
-    if custom_mode==4:
-        mode="GUIDED"
-
-    if custom_mode==5:
-        mode="LOITER"
-
-    if custom_mode==6:
-        mode="RTL"
-
-    if custom_mode==7:
-        mode="CIRCLE"
-
-    if custom_mode==9:
-        mode="LAND"
+    mode = vehicle.flightmode
 
     return mode
 
