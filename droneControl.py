@@ -12,7 +12,7 @@ def connect(connection_string,baud):
 
 def VehicleMode(vehicle,mode):
 
-    modes = ["STABILIZE", "ACRO", "ALT_HOLD", "AUTO", "GUIDED", "LOITER", "RTL", "CIRCLE", "LAND"]
+    modes = ["STABILIZE", "ACRO", "ALT_HOLD", "AUTO", "GUIDED", "LOITER", "RTL", "CIRCLE","", "LAND"]
     if mode in modes:
         mode_id = modes.index(mode)
     else:
