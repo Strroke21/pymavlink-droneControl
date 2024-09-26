@@ -24,7 +24,7 @@ def VehicleMode(vehicle,mode):
     
 
 def flightMode(vehicle):
-    
+    vehicle.recv_match(type='HEARTBEAT', blocking=True)
     # Wait for a 'HEARTBEAT' message
     mode = vehicle.flightmode
 
@@ -76,10 +76,13 @@ def get_local_position(vehicle):
     mavutil.mavlink.MAV_DATA_STREAM_POSITION,
     100,1)
     msg = vehicle.recv_match(type='LOCAL_POSITION_NED', blocking=True)
-    pos_x = msg.x # Degrees
-    pos_y = msg.y  # Degrees
+    pos_x = msg.x # meters
+    pos_y = msg.y  # meters
     pos_z = msg.z  # Meters
-    return [pos_x,pos_y,pos_z]
+    vx = msg.vx
+    vy = msg.vy
+    vz = msg.vz
+    return [pos_x,pos_y,pos_z,vx,vy,vz]
 
 #target waypoint function
 
@@ -116,8 +119,9 @@ def get_global_position(vehicle):
     vx = msg.vx/100 #in m/s
     vy= msg.vy/100 #in m/s
     vz = msg.vz/100 #in m/s
-    local_alt = msg.relative_alt/100
-    return [lat,lon,alt,vx,vy,vz,local_alt]
+    relative_alt = msg.relative_alt/100 #in m
+    hdg = msg.hdg/100 #in deg
+    return [lat,lon,alt,vx,vy,vz,relative_alt,hdg]
 
 def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
 
@@ -271,7 +275,7 @@ def scaled_imu_data(vehicle):
         mag_y = msg.ymag
         mag_z = msg.zmag
 
-        return {'x_accel':accel_x, 'y_accel':accel_y, 'z_accel':accel_z, 'x_gyro':gyro_x, 'y_gyro':gyro_y, 'z_gyro':gyro_z, 'x_mag':mag_x,'y_mag':mag_y, 'z_mag':mag_z}
+        return {'time_boot_ms':time_boot_ms,'x_accel':accel_x, 'y_accel':accel_y, 'z_accel':accel_z, 'x_gyro':gyro_x, 'y_gyro':gyro_y, 'z_gyro':gyro_z, 'x_mag':mag_x,'y_mag':mag_y, 'z_mag':mag_z}
     
     #accel_unit: mG gyro_unit: mrad/s mag_unit:mgauss
 
@@ -290,8 +294,8 @@ def send_land_message(vehicle,x,y):
 def arm_status(vehicle):
     heartbeat = vehicle.recv_match(type='HEARTBEAT', blocking=True)
     if heartbeat:
-        armed = heartbeat.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
-        if armed:
+        armed = vehicle.motors_armed()
+        if armed==128:
             return True
         else:
             return False
@@ -308,13 +312,11 @@ def set_parameter(vehicle, param_id, param_value, param_type=mavutil.mavlink.MAV
 
 def get_rangefinder_data(vehicle):
     # Wait for a DISTANCE_SENSOR or RANGEFINDER message
-    msg = vehicle.recv_match(type=['DISTANCE_SENSOR', 'RANGEFINDER'], blocking=True)
+    msg = vehicle.recv_match(type='DISTANCE_SENSOR', blocking=True)
     if msg:
         if msg.get_type() == 'DISTANCE_SENSOR':
             distance = msg.current_distance/100  # in meters
-        elif msg.get_type() == 'RANGEFINDER':
-            distance = msg.distance  # in meters
-        return distance
+            return distance
     else:
         return None
 
