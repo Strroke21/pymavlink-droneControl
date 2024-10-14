@@ -2,6 +2,7 @@
 
 from pymavlink import mavutil
 from math import radians, cos, sin, sqrt, atan2
+import time
 
 
 def connect(connection_string,baud):
@@ -32,8 +33,7 @@ def flightMode(vehicle):
 
 def arm(vehicle):
     #arm the drone
-    vehicle.mav.command_long_send(vehicle.target_system, vehicle.target_component,
-    	                                 mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM, 0, 1, 0, 0, 0, 0, 0, 0)
+    vehicle.mav.command_long_send(vehicle.target_system, vehicle.target_component,mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM, 0, 1, 0, 0, 0, 0, 0, 0)
     
 def drone_takeoff(vehicle, altitude):
     
@@ -302,13 +302,7 @@ def arm_status(vehicle):
     
 def set_parameter(vehicle, param_id, param_value, param_type=mavutil.mavlink.MAV_PARAM_TYPE_REAL32):
     # Send PARAM_SET message to change the parameter
-    vehicle.mav.param_set_send(
-        vehicle.target_system,     # Target system ID (usually 1)
-        vehicle.target_component,  # Target component ID (usually 1)
-        param_id.encode('utf-8'),     # Parameter ID as bytes
-        param_value,                  # New parameter value
-        param_type                    # MAVLink type (e.g., float, int)
-    )
+    vehicle.mav.param_set_send(vehicle.target_system,vehicle.target_component,param_id.encode('utf-8'),param_value,param_type)
 
 def get_rangefinder_data(vehicle):
     # Wait for a DISTANCE_SENSOR or RANGEFINDER message
@@ -320,6 +314,43 @@ def get_rangefinder_data(vehicle):
     else:
         return None
 
+
+def arm_and_takeoff(vehicle,target_alt):
+
+    while True:
+        VehicleMode(vehicle,"GUIDED")
+        print("vehicle in GUIDED mode")
+        time.sleep(1)
+        arm(vehicle)
+        time.sleep(1)
+        arm_ack = vehicle.recv_match(type='COMMAND_ACK', blocking=True)
+        time.sleep(0.1)
+        if arm_ack:
+            if arm_ack.command == mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM:
+                if arm_ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
+                    print(f"{arm_ack.result}: Arming Successful...")
+                    time.sleep(1)
+                    drone_takeoff(vehicle,10)
+                    ack_msg = vehicle.recv_match(type='COMMAND_ACK', blocking=True)
+                    time.sleep(0.1)
+                    if ack_msg:
+                        time.sleep(0.1)
+                        if ack_msg.command == mavutil.mavlink.MAV_CMD_NAV_TAKEOFF:
+                            if ack_msg.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
+                                print(f"{ack_msg.result}: Takeoff Successful...")
+                                break
+
+        else:
+            print("Arm and Takeoff Failed...")
+            time.sleep(1)
+
+    while True:
+        altitude = abs(get_local_position(vehicle)[2])
+        print(f"Altitude: {round(altitude,2)} m.")
+        if altitude>(target_alt*0.9):
+            print("Target altitude reached.")
+            time.sleep(0.1)
+            break
 
     
 
