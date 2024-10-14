@@ -330,7 +330,7 @@ def arm_and_takeoff(vehicle,target_alt):
                 if arm_ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
                     print(f"{arm_ack.result}: Arming Successful...")
                     time.sleep(1)
-                    drone_takeoff(vehicle,10)
+                    drone_takeoff(vehicle,target_alt)
                     ack_msg = vehicle.recv_match(type='COMMAND_ACK', blocking=True)
                     time.sleep(0.1)
                     if ack_msg:
