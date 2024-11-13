@@ -341,6 +341,7 @@ def arm_and_takeoff(vehicle,target_alt):
                                 break
 
         else:
+            
             print("Arm and Takeoff Failed...")
             time.sleep(1)
 
