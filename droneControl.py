@@ -5,11 +5,20 @@ from math import radians, cos, sin, sqrt, atan2
 import time
 
 
-def connect(connection_string,baud):
+def connect(connection_string):
 
-    vehicle =  mavutil.mavlink_connection(connection_string,baud)
+    vehicle =  mavutil.mavlink_connection(connection_string)
 
     return vehicle
+
+def enable_data_stream(vehicle,stream_rate):
+
+    vehicle.wait_heartbeat()
+    vehicle.mav.request_data_stream_send(
+    vehicle.target_system, 
+    vehicle.target_component,
+    mavutil.mavlink.MAV_DATA_STREAM_ALL,
+    stream_rate,1)
 
 def VehicleMode(vehicle,mode):
 
@@ -69,12 +78,6 @@ def send_velocity_setpoint(vehicle, vx, vy, vz):
     )
  
 def get_local_position(vehicle):
-    vehicle.wait_heartbeat()
-    vehicle.mav.request_data_stream_send(
-    vehicle.target_system, 
-    vehicle.target_component,
-    mavutil.mavlink.MAV_DATA_STREAM_POSITION,
-    100,1)
     msg = vehicle.recv_match(type='LOCAL_POSITION_NED', blocking=True)
     pos_x = msg.x # meters
     pos_y = msg.y  # meters
@@ -106,12 +109,6 @@ def goto_waypoint(vehicle,latitude, longitude, altitude):
 
 
 def get_global_position(vehicle):
-    vehicle.wait_heartbeat()
-    vehicle.mav.request_data_stream_send(
-    vehicle.target_system, 
-    vehicle.target_component,
-    mavutil.mavlink.MAV_DATA_STREAM_POSITION,
-    100,1)
     msg = vehicle.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
     lat = msg.lat/1e7 # lat
     lon = msg.lon/1e7 # lon
@@ -165,7 +162,6 @@ def get_heading(vehicle):
     vehicle.mav.command_long_send(vehicle.target_system,
     vehicle.target_component,
     mavutil.mavlink.MAV_CMD_REQUEST_MESSAGE,0,74,0,0,0,0,0,0)
-    ack_msg = vehicle.recv_match(type='COMMAND_ACK', blocking=True, timeout=3)
     #### COMMAND_ACK has a message id of 512.
 
     msg = vehicle.recv_match(type='VFR_HUD',blocking=True)
@@ -176,14 +172,6 @@ def get_heading(vehicle):
 
 
 def get_battery_status(vehicle):
-    # Request the SYS_STATUS message
-    vehicle.mav.request_data_stream_send(
-        vehicle.target_system,
-        vehicle.target_component,
-        mavutil.mavlink.MAV_DATA_STREAM_ALL,
-        1, 1  # Requesting one message per second
-    )
-
     # Wait for a 'SYS_STATUS' message
     message = vehicle.recv_match(type='SYS_STATUS', blocking=True, timeout=10)
 
@@ -323,22 +311,12 @@ def arm_and_takeoff(vehicle,target_alt):
         time.sleep(1)
         arm(vehicle)
         time.sleep(1)
-        arm_ack = vehicle.recv_match(type='COMMAND_ACK', blocking=True)
-        time.sleep(0.1)
-        if arm_ack:
-            if arm_ack.command == mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM:
-                if arm_ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
-                    print(f"{arm_ack.result}: Arming Successful...")
-                    time.sleep(1)
-                    drone_takeoff(vehicle,target_alt)
-                    ack_msg = vehicle.recv_match(type='COMMAND_ACK', blocking=True)
-                    time.sleep(0.1)
-                    if ack_msg:
-                        time.sleep(0.1)
-                        if ack_msg.command == mavutil.mavlink.MAV_CMD_NAV_TAKEOFF:
-                            if ack_msg.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
-                                print(f"{ack_msg.result}: Takeoff Successful...")
-                                break
+        drone_takeoff(vehicle,target_alt)
+        ack_msg = vehicle.recv_match(type='COMMAND_ACK', blocking=True)
+        if ack_msg:
+            if ack_msg.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
+                print(f"{ack_msg.result}: Takeoff Successful...")
+                break
 
         else:
             
@@ -348,7 +326,7 @@ def arm_and_takeoff(vehicle,target_alt):
     while True:
         altitude = abs(get_local_position(vehicle)[2])
         print(f"Altitude: {round(altitude,2)} m.")
-        if altitude>(target_alt*0.9):
+        if altitude>(target_alt*0.8):
             print("Target altitude reached.")
             time.sleep(0.1)
             break
