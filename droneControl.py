@@ -250,22 +250,9 @@ def scaled_imu_data(vehicle):
 
     vehicle.wait_heartbeat()
     msg = vehicle.recv_match(type='SCALED_IMU2', blocking=True)
-    #print(msg)
-    if msg is not None:
-        time_boot_ms = msg.time_boot_ms
-        accel_x = msg.xacc
-        accel_y = msg.yacc
-        accel_z = msg.zacc
-        gyro_x = msg.xgyro
-        gyro_y = msg.ygyro
-        gyro_z = msg.zgyro
-        mag_x = msg.xmag
-        mag_y = msg.ymag
-        mag_z = msg.zmag
+    return msg
 
-        return {'time_boot_ms':time_boot_ms,'x_accel':accel_x, 'y_accel':accel_y, 'z_accel':accel_z, 'x_gyro':gyro_x, 'y_gyro':gyro_y, 'z_gyro':gyro_z, 'x_mag':mag_x,'y_mag':mag_y, 'z_mag':mag_z}
-    
-    #accel_unit: mG gyro_unit: mrad/s mag_unit:mgauss
+
 
 def send_land_message(vehicle,x,y):
     msg = vehicle.mav.landing_target_encode(
