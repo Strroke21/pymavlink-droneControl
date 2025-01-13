@@ -318,6 +318,24 @@ def arm_and_takeoff(vehicle,target_alt):
             time.sleep(0.1)
             break
 
+def attitude(vehicle):
+
+    msg = vehicle.recv_match(type="ATTITUDE", blocking=True)
+    if msg:
+        return msg
+    else:
+        return None
+    
+
+def rc_channels(vehicle):
+
+    msg = vehicle.recv_match(type="RC_CHANNELS", blocking=True)
+    if msg:
+        return msg
+    else:
+        return None
+
+
     
 
 
