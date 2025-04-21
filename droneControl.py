@@ -118,11 +118,12 @@ def get_global_position(vehicle):
     vz = msg.vz/100 #in m/s
     relative_alt = msg.relative_alt/100 #in m
     hdg = msg.hdg/100 #in deg
-    return [lat,lon,alt,vx,vy,vz,relative_alt,hdg]
+    time_boot_ms = msg.time_boot_ms
+    return [lat,lon,alt,vx,vy,vz,relative_alt,hdg, time_boot_ms]
 
 def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
 
-    # Send MAVLink command to set velocity
+    # Send MAVLink command to set position
     vehicle.mav.set_position_target_local_ned_send(
         0,                          # time_boot_ms (not used)
         vehicle.target_system,       # target_system
@@ -248,9 +249,15 @@ def distance_to_home(vehicle):
 
 def scaled_imu_data(vehicle):
 
-    vehicle.wait_heartbeat()
-    msg = vehicle.recv_match(type='SCALED_IMU2', blocking=True)
-    return msg
+    msg = vehicle.recv_match(type='SCALED_IMU', blocking=True)
+    x_accel = msg.xacc
+    y_accel = msg.yacc
+    z_accel = msg.zacc
+    x_gyro = msg.xgyro
+    y_gyro = msg.ygyro
+    z_gyro = msg.zgyro
+
+    return [x_accel, y_accel, z_accel, x_gyro, y_gyro, z_gyro]
 
 
 
