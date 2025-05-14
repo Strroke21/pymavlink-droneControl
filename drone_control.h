@@ -30,4 +30,10 @@ double distance_between(double current_lat, double current_lon, double leader_la
 // Function to calculate distance to home
 double distance_to_home(mavsdk::System& system, mavsdk::Telemetry& telemetry);
 
+//go to target location
+bool goto_waypoint(System& system, float target_lat, float target_lon, float target_alt);
+
+//set velocity
+void set_velocity(System& system, float vx, float vy, float vz);
+
 #endif // DRONE_UTILS_H
