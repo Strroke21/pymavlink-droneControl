@@ -36,4 +36,16 @@ bool goto_waypoint(System& system, float target_lat, float target_lon, float tar
 //set velocity
 void set_velocity(System& system, float vx, float vy, float vz);
 
+//takeoff
+bool takeoff(System& system, float takeoff_altitude_m);
+
+//set flight mode
+bool set_flight_mode(System& system, uint8_t base_mode, uint8_t custom_mode);
+
+//get current position
+std::pair<double, double> get_global_position(System& system);
+
+//get current heading
+float current_heading(System& system);
+
 #endif // DRONE_UTILS_H
