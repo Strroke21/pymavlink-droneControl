@@ -34,11 +34,12 @@ def VehicleMode(vehicle,mode):
     
 
 def flightMode(vehicle):
-    vehicle.recv_match(type='HEARTBEAT', blocking=True)
-    # Wait for a 'HEARTBEAT' message
-    mode = vehicle.flightmode
+    while True:
+        vehicle.recv_match(type='HEARTBEAT', blocking=True)
+        # Wait for a 'HEARTBEAT' message
+        mode = vehicle.flightmode
 
-    return mode
+        return mode
 
 def arm(vehicle):
     #arm the drone
@@ -78,14 +79,16 @@ def send_velocity_setpoint(vehicle, vx, vy, vz):
     )
  
 def get_local_position(vehicle):
-    msg = vehicle.recv_match(type='LOCAL_POSITION_NED', blocking=True)
-    pos_x = msg.x # meters
-    pos_y = msg.y  # meters
-    pos_z = msg.z  # Meters
-    vx = msg.vx
-    vy = msg.vy
-    vz = msg.vz
-    return [pos_x,pos_y,pos_z,vx,vy,vz]
+    while True:
+        msg = vehicle.recv_match(type='LOCAL_POSITION_NED', blocking=True)
+        if msg is not None:
+            pos_x = msg.x # meters
+            pos_y = msg.y  # meters
+            pos_z = msg.z  # Meters
+            vx = msg.vx
+            vy = msg.vy
+            vz = msg.vz
+            return [pos_x,pos_y,pos_z,vx,vy,vz]
 
 #target waypoint function
 
@@ -109,17 +112,19 @@ def goto_waypoint(vehicle,latitude, longitude, altitude):
 
 
 def get_global_position(vehicle):
-    msg = vehicle.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
-    lat = msg.lat/1e7 # lat
-    lon = msg.lon/1e7 # lon
-    alt = msg.alt/1000  # alt
-    vx = msg.vx/100 #in m/s
-    vy= msg.vy/100 #in m/s
-    vz = msg.vz/100 #in m/s
-    relative_alt = msg.relative_alt/100 #in m
-    hdg = msg.hdg/100 #in deg
-    time_boot_ms = msg.time_boot_ms
-    return [lat,lon,alt,vx,vy,vz,relative_alt,hdg, time_boot_ms]
+    while True:
+        msg = vehicle.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
+        if msg is not None:
+            lat = msg.lat/1e7 # lat
+            lon = msg.lon/1e7 # lon
+            alt = msg.alt/1000  # alt
+            vx = msg.vx/100 #in m/s
+            vy= msg.vy/100 #in m/s
+            vz = msg.vz/100 #in m/s
+            relative_alt = msg.relative_alt/100 #in m
+            hdg = msg.hdg/100 #in deg
+            time_boot_ms = msg.time_boot_ms
+            return [lat,lon,alt,vx,vy,vz,relative_alt,hdg, time_boot_ms]
 
 def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
 
@@ -215,49 +220,50 @@ def get_system_status(vehicle):
 
 
 def home_location(vehicle):
-
-    vehicle.mav.command_long_send(vehicle.target_system,vehicle.target_component,mavutil.mavlink.MAV_CMD_GET_HOME_POSITION,0,0,0,0,0,0,0,0)
-    msg=vehicle.recv_match(type='HOME_POSITION',blocking=True)
-    if msg:
-        return [msg.latitude * 1e-7, msg.longitude * 1e-7,msg.altitude * 1e-3]
-    
-    #0:lat 1:lon 2:alt
+    while True:
+        msg=vehicle.recv_match(type='HOME_POSITION',blocking=True)
+        if msg is not None:
+            return [msg.latitude * 1e-7, msg.longitude * 1e-7,msg.altitude * 1e-3]
+        
+        #0:lat 1:lon 2:alt
 
 
 def distance_to_home(vehicle):
 
-    msg1=home_location(vehicle)
-    
-    home_lat=msg1[0]
-    home_lon=msg1[1]
-    #home_alt=msg1.altitude * 1e-3
+    while True:
+        msg1=home_location(vehicle)
+        if msg1 is not None:
+            home_lat=msg1[0]
+            home_lon=msg1[1]
+            #home_alt=msg1.altitude * 1e-3
 
-    msg2 = get_global_position(vehicle)
-    
-    current_lat = msg2[0] # lat
-    current_lon = msg2[1] # lon
-    #current_alt = msg2[2] # alt
-    
-    R = 6371000  # Earth radius in meters
-    dlat = radians(current_lat - home_lat)
-    dlon = radians(current_lon - home_lon)
-    a = sin(dlat / 2)**2 + cos(radians(home_lat)) * cos(radians(current_lat)) * sin(dlon / 2)**2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    distance = R * c
-    return distance #in meters
+            msg2 = get_global_position(vehicle)
+            
+            current_lat = msg2[0] # lat
+            current_lon = msg2[1] # lon
+            #current_alt = msg2[2] # alt
+            
+            R = 6371000  # Earth radius in meters
+            dlat = radians(current_lat - home_lat)
+            dlon = radians(current_lon - home_lon)
+            a = sin(dlat / 2)**2 + cos(radians(home_lat)) * cos(radians(current_lat)) * sin(dlon / 2)**2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
+            distance = R * c
+            return distance #in meters
 
 
 def scaled_imu_data(vehicle):
+    while True:
+        msg = vehicle.recv_match(type='SCALED_IMU', blocking=True)
+        if msg is not None:
+            x_accel = msg.xacc
+            y_accel = msg.yacc
+            z_accel = msg.zacc
+            x_gyro = msg.xgyro
+            y_gyro = msg.ygyro
+            z_gyro = msg.zgyro
 
-    msg = vehicle.recv_match(type='SCALED_IMU', blocking=True)
-    x_accel = msg.xacc
-    y_accel = msg.yacc
-    z_accel = msg.zacc
-    x_gyro = msg.xgyro
-    y_gyro = msg.ygyro
-    z_gyro = msg.zgyro
-
-    return [x_accel, y_accel, z_accel, x_gyro, y_gyro, z_gyro]
+            return [x_accel, y_accel, z_accel, x_gyro, y_gyro, z_gyro]
 
 
 
@@ -287,14 +293,11 @@ def set_parameter(vehicle, param_name, param_value, param_type=mavutil.mavlink.M
     vehicle.mav.param_set_send(vehicle.target_system,vehicle.target_component,param_name.encode('utf-8'),param_value,param_type)
 
 def get_rangefinder_data(vehicle):
-    # Wait for a DISTANCE_SENSOR or RANGEFINDER message
-    msg = vehicle.recv_match(type='DISTANCE_SENSOR', blocking=True)
-    if msg:
-        if msg.get_type() == 'DISTANCE_SENSOR':
+    while True:
+        msg = vehicle.recv_match(type='DISTANCE_SENSOR', blocking=True)
+        if msg is not None:
             distance = msg.current_distance/100  # in meters
             return distance
-    else:
-        return None
 
 
 def arm_and_takeoff(vehicle,target_alt):
@@ -326,21 +329,19 @@ def arm_and_takeoff(vehicle,target_alt):
             break
 
 def attitude(vehicle):
+    while True:
+        msg = vehicle.recv_match(type="ATTITUDE", blocking=True)
+        if msg is not None:
+            return msg
 
-    msg = vehicle.recv_match(type="ATTITUDE", blocking=True)
-    if msg:
-        return msg
-    else:
-        return None
     
 
 def rc_channels(vehicle):
+    while True:
+        msg = vehicle.recv_match(type="RC_CHANNELS", blocking=True)
+        if msg is not None:
+            return msg
 
-    msg = vehicle.recv_match(type="RC_CHANNELS", blocking=True)
-    if msg:
-        return msg
-    else:
-        return None
 
 
     
