@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 
 
 from pymavlink import mavutil
 from math import radians, cos, sin, sqrt, atan2
@@ -343,11 +343,16 @@ def rc_channels(vehicle):
             return msg
 
 
+def vision_position_send(vehicle,x,y,z,roll,pitch,yaw,cov,reset_counter):
+    vehicle.mav.vision_position_estimate_send(
+        int(time.time() * 1e6),  
+        x,y,z,
+        roll,pitch,yaw
+    )
 
-    
+def vision_speed_send(vehicle, vx, vy, vz):
 
-
-
-
-
-    
+    vehicle.mav.vision_speed_estimate_send(
+        int(time.time() * 1e6),
+        vx, vy, vz
+        )
