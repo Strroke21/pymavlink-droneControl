@@ -48,4 +48,16 @@ std::pair<double, double> get_global_position(System& system);
 //get current heading
 float current_heading(System& system);
 
+//send vision speed
+void vision_speed_send(System& system, float vx, float vy, float vz);
+
+//send vision position
+void vision_position_send(System& system, float x, float y, float z, float roll, float pitch, float yaw);
+
+//set gps global origin
+void set_default_global_origin(System& system, int32_t home_lat, int32_t home_lon, int32_t home_alt);
+
+//set home origin
+void set_default_home_position(System& system, int32_t home_lat, int32_t home_lon, int32_t home_alt);
+
 #endif // DRONE_UTILS_H
