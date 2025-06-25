@@ -343,7 +343,7 @@ def rc_channels(vehicle):
             return msg
 
 
-def vision_position_send(vehicle,x,y,z,roll,pitch,yaw,cov,reset_counter):
+def vision_position_send(vehicle,x,y,z,roll,pitch,yaw):
     vehicle.mav.vision_position_estimate_send(
         int(time.time() * 1e6),  
         x,y,z,
@@ -356,3 +356,36 @@ def vision_speed_send(vehicle, vx, vy, vz):
         int(time.time() * 1e6),
         vx, vy, vz
         )
+
+
+def set_default_global_origin(vehicle, home_lat, home_lon, home_alt):
+    vehicle.mav.set_gps_global_origin_send(
+        1,
+        home_lat, 
+        home_lon,
+        home_alt
+    )
+
+def set_default_home_position(vehicle, home_lat, home_lon, home_alt):
+    x = 0
+    y = 0
+    z = 0
+    q = [1, 0, 0, 0]   # w x y z
+
+    approach_x = 0
+    approach_y = 0
+    approach_z = 1
+
+    vehicle.mav.set_home_position_send(
+        1,
+        home_lat, 
+        home_lon,
+        home_alt,
+        x,
+        y,
+        z,
+        q,
+        approach_x,
+        approach_y,
+        approach_z
+    )
