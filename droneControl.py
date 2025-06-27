@@ -3,7 +3,9 @@
 from pymavlink import mavutil
 from math import radians, cos, sin, sqrt, atan2
 import time
+import os
 
+os.environ["MAVLINK20"] = "1"
 
 def connect(connection_string):
 
@@ -343,19 +345,26 @@ def rc_channels(vehicle):
             return msg
 
 
-def vision_position_send(vehicle,x,y,z,roll,pitch,yaw):
-    vehicle.mav.vision_position_estimate_send(
-        int(time.time() * 1e6),  
-        x,y,z,
-        roll,pitch,yaw
-    )
+def vision_position_send(vehicle, x, y, z, roll, pitch, yaw, cov, reset_counter):
 
-def vision_speed_send(vehicle, vx, vy, vz):
-
-    vehicle.mav.vision_speed_estimate_send(
+    msg = vehicle.mav.vision_position_estimate_encode(
         int(time.time() * 1e6),
-        vx, vy, vz
+        x, y, z,
+        roll, pitch, yaw,
+        cov,
+        reset_counter    
+    )
+    vehicle.mav.send(msg)
+
+def vision_speed_send(vehicle, vx, vy, vz, cov,reset_counter):
+
+    msg = vehicle.mav.vision_speed_estimate_encode(
+        int(time.time() * 1e6),
+        vx, vy, vz,
+        cov,
+        reset_counter
         )
+    vehicle.mav.send(msg)
 
 
 def set_default_global_origin(vehicle, home_lat, home_lon, home_alt):
@@ -389,3 +398,4 @@ def set_default_home_position(vehicle, home_lat, home_lon, home_alt):
         approach_y,
         approach_z
     )
+
