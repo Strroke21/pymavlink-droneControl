@@ -227,8 +227,6 @@ def home_location(vehicle):
         if msg is not None:
             return [msg.latitude * 1e-7, msg.longitude * 1e-7,msg.altitude * 1e-3]
         
-        #0:lat 1:lon 2:alt
-
 
 def distance_to_home(vehicle):
 
@@ -399,3 +397,22 @@ def set_default_home_position(vehicle, home_lat, home_lon, home_alt):
         approach_z
     )
 
+def send_gps_input(vehicle, lat, lon, alt, vx, vy, vz):
+
+    vehicle.mav.gps_input_send(
+        int(time.time() * 1e6),  # time_usec (microseconds)
+        0,                       # gps_id
+        0,                       # flags
+        0,           # ignore_flags
+        0,                     # time_week_ms (GPS time in ms, set 0 if not synced)
+        3,                      # fix_type (3 = 3D fix)
+        int(lat*1e7),               # lat (degrees * 1E7)
+        int(lon*1e7),               # lon (degrees * 1E7)
+        int(alt*1e7),               # alt (millimeters)
+        0, 0,                   # hdop, vdop (ignored)
+        float(vx), float(vy), float(-vz),  # velocity in cm/s (z is down in NED)
+        0,                    # speed_accuracy (m/s)
+        0,                    # horiz_accuracy (m)
+        0,                    # vert_accuracy (m)
+        0                       # satellites_visible (optional)
+    )
