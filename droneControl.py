@@ -343,24 +343,20 @@ def rc_channels(vehicle):
             return msg
 
 
-def vision_position_send(vehicle, x, y, z, roll, pitch, yaw, cov, reset_counter):
+def vision_position_send(vehicle, x, y, z, roll, pitch, yaw):
 
     msg = vehicle.mav.vision_position_estimate_encode(
         int(time.time() * 1e6),
         x, y, z,
-        roll, pitch, yaw,
-        cov,
-        reset_counter    
+        roll, pitch, yaw  
     )
     vehicle.mav.send(msg)
 
-def vision_speed_send(vehicle, vx, vy, vz, cov,reset_counter):
+def vision_speed_send(vehicle, vx, vy, vz):
 
     msg = vehicle.mav.vision_speed_estimate_encode(
         int(time.time() * 1e6),
-        vx, vy, vz,
-        cov,
-        reset_counter
+        vx, vy, vz
         )
     vehicle.mav.send(msg)
 
@@ -385,9 +381,9 @@ def set_default_home_position(vehicle, home_lat, home_lon, home_alt):
 
     vehicle.mav.set_home_position_send(
         1,
-        home_lat, 
-        home_lon,
-        home_alt,
+        int(home_lat * 1e7), 
+        int(home_lon * 1e7),
+        int(home_alt),
         x,
         y,
         z,
@@ -397,7 +393,7 @@ def set_default_home_position(vehicle, home_lat, home_lon, home_alt):
         approach_z
     )
 
-def send_gps_input(vehicle, lat, lon, alt, vx, vy, vz):
+def send_gps_input(vehicle, lat, lon, alt, hdop,vdop, vx, vy, vz, sats):
 
     vehicle.mav.gps_input_send(
         int(time.time() * 1e6),  # time_usec (microseconds)
@@ -409,10 +405,10 @@ def send_gps_input(vehicle, lat, lon, alt, vx, vy, vz):
         int(lat*1e7),               # lat (degrees * 1E7)
         int(lon*1e7),               # lon (degrees * 1E7)
         int(alt*1e7),               # alt (millimeters)
-        0, 0,                   # hdop, vdop (ignored)
-        float(vx), float(vy), float(-vz),  # velocity in cm/s (z is down in NED)
+        hdop, vdop,                   # hdop, vdop
+        float(vx), float(vy), float(-vz),  # velocity in m/s (z is down in NED)
         0,                    # speed_accuracy (m/s)
         0,                    # horiz_accuracy (m)
         0,                    # vert_accuracy (m)
-        0                       # satellites_visible (optional)
+        sats                      # satellites_visible (optional)
     )
