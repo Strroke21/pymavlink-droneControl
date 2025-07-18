@@ -412,3 +412,42 @@ def send_gps_input(vehicle, lat, lon, alt, hdop,vdop, vx, vy, vz, sats):
         0,                    # vert_accuracy (m)
         sats                      # satellites_visible (optional)
     )
+
+def gps_status(vehicle):
+
+    while True:
+        msg = vehicle.recv_match(type='GPS_STATUS', blocking=True)
+        if msg:
+            sats = msg.satellites_visible
+            satellite_ids = msg.satellite_prn
+            satellites_used = msg.satellite_used #bool 0:not used, 1:used
+            sat_elevation = msg.satellite_elevation #degrees
+            sat_azimuth = msg.satellite_azimuth #degrees (direction of the satellite)
+            sat_snr = msg.satellite_snr #signal to noise ratio dB
+            return [sats, satellite_ids, satellites_used, sat_elevation, sat_azimuth, sat_snr]
+        
+def attitude_quaternion_cov(vehicle):
+    while True:
+        msg = vehicle.recv_match(type='ATTITUDE_QUATERNION_COV', blocking=True)
+        if msg:
+            q = msg.q #Quaternion components, w, x, y, z (1 0 0 0 is the null-rotation)
+            roll_speed = msg.rollspeed # Roll angular speed in rad/s
+            pitch_speed = msg.pitchspeed # Pitch angular speed in rad/s
+            yaw_speed = msg.yawspeed # Yaw angular speed in rad/s
+            covariance = msg.covariance # 6x6 covariance matrix for attitude
+            return [q, roll_speed, pitch_speed, yaw_speed, covariance]
+        
+def nav_controller_output(vehicle):
+    while True:
+        msg = vehicle.recv_match(type='NAV_CONTROLLER_OUTPUT', blocking=True)
+        if msg:
+            nav_roll = msg.nav_roll # current Desired roll angle in degrees
+            nav_pitch = msg.nav_pitch # current Desired pitch angle in degrees
+            nav_bearing = msg.nav_bearing # current Desired bearing in degrees
+            target_bearing = msg.target_bearing # Target bearing in degrees
+            wp_dist = msg.wp_dist # Distance to the active waypoint in meters
+            alt_error = msg.alt_error # Altitude error in meters
+            aspd_error = msg.aspd_error # Airspeed error in m/s
+            xtrack_error = msg.xtrack_error # Cross-track error in x-y plane in meters
+            return [nav_roll, nav_pitch, nav_bearing, target_bearing, wp_dist, alt_error, aspd_error, xtrack_error]
+        
