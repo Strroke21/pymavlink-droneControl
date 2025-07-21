@@ -466,3 +466,16 @@ def set_attitude_target(vehicle, q, body_roll_rate, body_pitch_rate, body_yaw_ra
         thrust  # thrust (0.0 to 1.0, where 1.0 is full thrust) (-1 to 1) for thrust reverse capable systems
     )
     vehicle.mav.send(msg)
+
+def optical_flow(vehicle, flow_x, flow_y, flow_comp_m_x, flow_comp_m_y, quality, ground_distance):
+    msg = vehicle.mav.set_optical_flow_encode(
+        int(time.time() * 1e6),  # time_usec
+        0,  # sensor_id (0 for default sensor)
+        flow_x,  # flow_x (flow in x direction in pixels)
+        flow_y,  # flow_y (flow in y direction in pixels)
+        flow_comp_m_x,  # flow_comp_m_x (compensated flow in x direction in m/s)
+        flow_comp_m_y,  # flow_comp_m_y (compensated flow in y direction in m/s)
+        quality,  # quality (0 to 255, where 255 is best quality)
+        ground_distance  # ground_distance (positive: known, negative: unknown )
+    )
+    vehicle.mav.send(msg)
