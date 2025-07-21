@@ -451,3 +451,18 @@ def nav_controller_output(vehicle):
             xtrack_error = msg.xtrack_error # Cross-track error in x-y plane in meters
             return [nav_roll, nav_pitch, nav_bearing, target_bearing, wp_dist, alt_error, aspd_error, xtrack_error]
         
+
+def set_attitude_target(vehicle, q, body_roll_rate, body_pitch_rate, body_yaw_rate, thrust):
+    
+    msg = vehicle.mav.set_attitude_target_encode(
+        int(time.time() * 1e6),  # time_boot_ms
+        vehicle.target_system,  # target_system
+        vehicle.target_component,  # target_component
+        0b0000000,  # type_mask (0 means all fields are valid)
+        q,  # quaternion (w, x, y, z) or [1, 0, 0, 0] for no rotation
+        body_roll_rate,  # body roll rate in rad/s
+        body_pitch_rate,  # body pitch rate in rad/s
+        body_yaw_rate,  # body yaw rate in rad/s
+        thrust  # thrust (0.0 to 1.0, where 1.0 is full thrust) (-1 to 1) for thrust reverse capable systems
+    )
+    vehicle.mav.send(msg)
