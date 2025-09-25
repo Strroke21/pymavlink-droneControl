@@ -65,14 +65,14 @@ def drone_takeoff(vehicle, altitude):
     )
 
 
-def send_velocity_setpoint(vehicle, vx, vy, vz):
+def send_velocity_setpoint(vehicle, vx, vy, vz, FRAME):
 
     # Send MAVLink command to set velocity
     vehicle.mav.set_position_target_local_ned_send(
         0,                          # time_boot_ms (not used)
         vehicle.target_system,       # target_system
         vehicle.target_component,    # target_component
-        mavutil.mavlink.MAV_FRAME_LOCAL_NED,  # frame
+        FRAME,  # frame
         0b0000111111000111,        # type_mask (only vx, vy, vz, yaw_rate)
         0, 0, 0,                    # position (not used)
         vx, vy, vz,                 # velocity in m/s
@@ -128,14 +128,14 @@ def get_global_position(vehicle):
             time_boot_ms = msg.time_boot_ms
             return [lat,lon,alt,vx,vy,vz,relative_alt,hdg, time_boot_ms]
 
-def send_position_setpoint(vehicle, pos_x, pos_y, pos_z):
+def send_position_setpoint(vehicle, pos_x, pos_y, pos_z,FRAME):
 
     # Send MAVLink command to set position
     vehicle.mav.set_position_target_local_ned_send(
         0,                          # time_boot_ms (not used)
         vehicle.target_system,       # target_system
         vehicle.target_component,    # target_component
-        mavutil.mavlink.MAV_FRAME_LOCAL_NED,  # frame
+        FRAME,  # frame
         0b110111111000,        # type_mask (only for postion)
         pos_x, pos_y, pos_z,   # position 
         0, 0, 0,                 # velocity in m/s (not used)
@@ -164,7 +164,6 @@ def condition_yaw(vehicle, yaw, relative):
     vehicle.mav.send(msg)
     
   
-
 def get_heading(vehicle):
 
     vehicle.mav.command_long_send(vehicle.target_system,
