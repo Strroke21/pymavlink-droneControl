@@ -493,3 +493,28 @@ def current_alt(vehicle):
             return curr_alt
         
 
+def control_system_state(vehicle):
+    while True:
+        msg = vehicle.recv_match(type='CONTROL_SYSTEM_STATE', blocking=True)
+        if msg:
+            x_acc = msg.x_acc # X acceleration in m/s^2
+            y_acc = msg.y_acc # Y acceleration in m/s^2
+            z_acc = msg.z_acc # Z acceleration in m/s^2
+            x_vel = msg.x_vel # X velocity in m/s
+            y_vel = msg.y_vel # Y velocity in m/s
+            z_vel = msg.z_vel # Z velocity in m/s
+            x_pos = msg.x_pos # X position in m
+            y_pos = msg.y_pos # Y position in m
+            z_pos = msg.z_pos # Z position in m
+            airspeed = msg.airspeed # Airspeed in m/s
+            vel_variance = msg.vel_variance # Velocity variance
+            pos_variance = msg.pos_variance # Position variance
+            q = msg.q # Attitude quaternion (w, x, y, z)
+            roll_rate = msg.roll_rate # Roll angular rate in rad/s
+            pitch_rate = msg.pitch_rate # Pitch angular rate in rad/s
+            yaw_rate = msg.yaw_rate # Yaw angular rate in rad/s
+            return [x_acc, y_acc, z_acc, x_vel,
+                    y_vel, z_vel, x_pos, y_pos,
+                    z_pos, airspeed, vel_variance,
+                    pos_variance,q, roll_rate,
+                    pitch_rate, yaw_rate]
