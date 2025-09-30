@@ -326,9 +326,9 @@ def arm_and_takeoff(vehicle,target_alt):
             time.sleep(1)
 
     while True:
-        altitude = abs(get_local_position(vehicle)[2])
+        altitude = abs(current_alt(vehicle))
         print(f"Altitude: {altitude:.2f} m.")
-        if altitude>(target_alt*0.8):
+        if altitude>(target_alt*0.85):
             print("Target altitude reached.")
             time.sleep(0.1)
             break
