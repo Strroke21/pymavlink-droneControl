@@ -484,3 +484,12 @@ def optical_flow(vehicle, flow_x, flow_y, flow_comp_m_x, flow_comp_m_y, quality,
         ground_distance  # ground_distance (positive: known, negative: unknown )
     )
     vehicle.mav.send(msg)
+
+def current_alt(vehicle):
+    while True:
+        msg = vehicle.recv_match(type='TERRAIN_REPORT', blocking=True)
+        if msg:
+            curr_alt = msg.current_height #in meters
+            return curr_alt
+        
+
